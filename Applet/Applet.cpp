@@ -69,6 +69,10 @@ bool App::Command(String s)
 	debug.println("Invalid command: ", s);
 	return false;
 }
+bool App::Command(String s, float v)
+{
+	return Command(s + String(v) + ";");
+}
 
 Applet*	App::FindApplet(String name)
 {

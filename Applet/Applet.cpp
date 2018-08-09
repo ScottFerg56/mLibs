@@ -71,7 +71,7 @@ bool App::Command(String s)
 }
 bool App::Command(String s, float v)
 {
-	return Command(s + String(v) + ";");
+	return Command(s + String(v));
 }
 
 Applet*	App::FindApplet(String name)

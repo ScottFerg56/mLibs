@@ -39,6 +39,7 @@ public:
 	void	Run();
 	bool	Command(String s);
 	bool	Command(String s, float v);
+	bool	Command(String s, uint v);
 	Applet*	FindApplet(String name);
 
 protected:

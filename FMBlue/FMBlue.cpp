@@ -30,7 +30,7 @@ void BlueCtrl::Setup()
 	// Disable command echo from Bluefruit
 	ble.echo(false);
 
-	ble.println("AT+GAPDEVNAME=SLIDER");
+	ble.println(String("AT+GAPDEVNAME=") + ServerName);
 	if (!ble.waitForOK())
 	{
 		error("BLE error setting name");

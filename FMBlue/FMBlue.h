@@ -29,16 +29,12 @@
 #include <Metronome.h>
 #include <Applet.h>
 
-#define BLUEFRUIT_SPI_CS               8
-#define BLUEFRUIT_SPI_IRQ              7
-#define BLUEFRUIT_SPI_RST              4    // Optional but recommended, set to -1 if unused
-
-#define STATUS_PERIOD	100
-
 class BlueCtrl : public Applet
 {
 public:
-	BlueCtrl() : ble(BLUEFRUIT_SPI_CS, BLUEFRUIT_SPI_IRQ, BLUEFRUIT_SPI_RST), Metro(STATUS_PERIOD), Buffer(""), BufferIndex(0) {}
+	BlueCtrl(char * name, int8_t cs = 8, int8_t irq = 7, int8_t rst = 4) :
+		ble(cs, irq, rst),
+		Metro(100), Buffer(""), BufferIndex(0), ServerName(name) {}
 	void		Setup();
 	void		Run();
 	bool		Command(String s);
@@ -47,6 +43,7 @@ public:
 private:
 	void		error(char* err);
 
+	String		ServerName;
 	Metronome	Metro;
 	Adafruit_BluefruitLE_SPI ble;
 	bool		Connected;

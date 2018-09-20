@@ -1,8 +1,16 @@
 /*
- Name:		FMTime.cpp
- Created:	2/24/2018 4:33:25 PM
+
+@@@@@@@ @@   @@  @@@@@@    @@
+ @@  @@ @@@ @@@  @ @@ @    @@
+ @@   @ @@@@@@@  @ @@ @
+ @@ @   @@@@@@@    @@     @@@   @@@ @@   @@@@@
+ @@@@   @@ @ @@    @@      @@   @@@@@@@ @@   @@
+ @@ @   @@   @@    @@      @@   @@ @ @@ @@@@@@@
+ @@     @@   @@    @@      @@   @@ @ @@ @@
+ @@     @@   @@    @@      @@   @@ @ @@ @@   @@
+@@@@    @@   @@   @@@@    @@@@  @@   @@  @@@@@
+
  Author:	Scott Ferguson
- Editor:	http://www.visualmicro.com
 */
 
 #include "FMTime.h"
@@ -11,6 +19,10 @@
 int64_t FMDateTime::SystemTime;
 uint32_t FMDateTime::LastUpdate;
 
+/// <summary>Returns the number of days in a specified month and year.</summary>
+/// <param name="month">The month (1 to 12).</param>
+/// <param name="year">The year (0-based).</param>
+/// <returns>The number of days in the month.</returns>
 uint8_t FMDateTime::DaysInMonth(uint8_t month, uint16_t year)
 {
 	// API starts months from 1, this array starts from 0
@@ -22,6 +34,11 @@ uint8_t FMDateTime::DaysInMonth(uint8_t month, uint16_t year)
 	return days;
 }
 
+/// <summary>Construct an FMDateTime from a string.</summary>
+/// <param name="s">The datetime in a specific string format.</param>
+/// <remarks>
+/// The input string must be exactly in the fixed format: "yyyy/MM/dd HH:mm:ss.FFF".
+/// </remarks>
 FMDateTime::FMDateTime(const char*s)
 {
 	if (strlen(s) != 23)
@@ -31,7 +48,7 @@ FMDateTime::FMDateTime(const char*s)
 	//           1         2
 	// 01234567890123456789012
 	// yyyy/MM/dd HH:mm:ss.FFF
-	// 2018,02,23,14,13,34,741
+	// 2018/02/23 14:13:34.741
 	if (ts[4] != '/')
 		return;
 	ts[4] = 0;
@@ -59,18 +76,20 @@ FMDateTime::FMDateTime(const char*s)
 	MilliSecond = atoi(ts + 20);
 }
 
+/// <summary>Construct an FMDateTime from a number of milliseconds since 1/1/1970.</summary>
+/// <param name="ms">The number of milliseconds since 1/1/1970.</param>
 FMDateTime::FMDateTime(int64_t ms)
 {
 	MilliSecond = ms % 1000;
 	uint32_t time = ms / 1000;	// now it is seconds
 	Second = time % 60;
-	time /= 60; // now it is minutes
+	time /= 60;					// now it is minutes
 	Minute = time % 60;
-	time /= 60; // now it is hours
+	time /= 60;					// now it is hours
 	Hour = time % 24;
-	time /= 24; // now it is days
+	time /= 24;					// now it is days
 
-	Year = 1970;
+	Year = 1970;				// the year base is 1970
 	while (time > 0)
 	{
 		int days = DaysInYear(Year);
@@ -94,6 +113,8 @@ FMDateTime::FMDateTime(int64_t ms)
 	Day = time + 1;     // day of month
 }
 
+/// <summary>Returns the number of days since 1/1/1970.</summary>
+/// <returns>The number of days since 1/1/1970.</returns>
 uint32_t FMDateTime::FullDaysSince1970()
 {
 	uint32_t days = 0;
@@ -111,26 +132,38 @@ uint32_t FMDateTime::FullDaysSince1970()
 	return days + Day - 1;
 }
 
+/// <summary>Returns the number of milliseconds since 1/1/1970.</summary>
+/// <returns>The number of milliseconds since 1/1/1970.</returns>
 int64_t FMDateTime::ToMillis()
 {
 	uint32_t seconds = ((FullDaysSince1970() * 24 + Hour) * 60 + Minute) * 60 + Second;
 	return (int64_t)seconds * 1000 + MilliSecond;
 }
 
+/// <summary>Returns the weekday.</summary>
+/// <returns>The weekday, where 1 is Sunday, 2 is Monday, etc.</returns>
 uint8_t FMDateTime::WeekDay()
 {
 	return ((FullDaysSince1970() + 4) % 7) + 1;  // Sunday is day 1 
 }
 
+/// <summary>Returns the current time as the number of milliseconds since 1/1/1970.</summary>
+/// <returns>The current time as the number of milliseconds since 1/1/1970.</returns>
 int64_t FMDateTime::NowMillis()
 {
-	// update SystemTime with ms elapsed since last update
+	// The current time at any instant is the SystemTime plus time elapsed since the LastUpdate
+	// Update the SystemTime every call here because the system millis() value will overflow
+	// about every 50 days if the time is not set sooner.
 	uint32_t ms = millis();
 	SystemTime += ms - LastUpdate;
 	LastUpdate = ms;
 	return SystemTime;
 }
 
+/// <summary>Convert a value into a fixed-width string.</summary>
+/// <param name="digits">The value to convert.</param>
+/// <param name="width">The desired width.</param>
+/// <returns>The String representing the value, left-filled with 0's to the specified width.</returns>
 String FMDateTime::DigitsStr(uint32_t digits, byte width)
 {
 	String s = String(digits);
@@ -139,6 +172,8 @@ String FMDateTime::DigitsStr(uint32_t digits, byte width)
 	return s;
 }
 
+/// <summary>Returns a formatted string representing the datetime.</summary>
+/// <returns>The string representing the datetime with the fixed format: "yyyy/MM/dd HH:mm:ss.FFF".</returns>
 String FMDateTime::ToString()
 {
 	return String(Year) +
@@ -150,6 +185,8 @@ String FMDateTime::ToString()
 		"." + DigitsStr(MilliSecond, 3);
 }
 
+/// <summary>Set the current time with the number of milliseconds since 1/1/1970.</summary>
+/// <param name="ms">The current time as the number of milliseconds since 1/1/1970.</param>
 void FMDateTime::SetTime(int64_t ms)
 {
 	SystemTime = ms;

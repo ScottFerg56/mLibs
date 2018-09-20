@@ -1,12 +1,26 @@
 /*
- Name:		Metronome.cpp
- Created:	1/27/2018 9:22:29 PM
+
+@@   @@            @
+@@@ @@@           @@
+@@@@@@@           @@
+@@@@@@@  @@@@@  @@@@@@  @@ @@@   @@@@@  @@ @@@   @@@@@  @@@ @@   @@@@@
+@@ @ @@ @@   @@   @@     @@  @@ @@   @@  @@@@@@ @@   @@ @@@@@@@ @@   @@
+@@   @@ @@@@@@@   @@     @@  @@ @@   @@  @@  @@ @@   @@ @@ @ @@ @@@@@@@
+@@   @@ @@        @@     @@     @@   @@  @@  @@ @@   @@ @@ @ @@ @@
+@@   @@ @@   @@   @@ @@  @@     @@   @@  @@  @@ @@   @@ @@ @ @@ @@   @@
+@@   @@  @@@@@     @@@  @@@@     @@@@@   @@  @@  @@@@@  @@   @@  @@@@@
+
  Author:	Scott Ferguson
- Editor:	http://www.visualmicro.com
 */
 
 #include "Metronome.h"
 
+/// <summary>Test for expiration of the timer interval.</summary>
+/// <returns>True if the timer interval has expired.</returns>
+/// <remarks>
+/// The timer is reset for the next interval when the test for expiration returns true.
+/// The timer is most conveniently referenced by testing the object itself as a boolean expression.
+/// </remarks>
 bool Metronome::Test()
 {
 	uint32_t t = millis();
@@ -16,6 +30,12 @@ bool Metronome::Test()
 	return true;
 }
 
+/// <summary>Test for expiration of the timer interval.</summary>
+/// <returns>True if the timer interval has expired.</returns>
+/// <remarks>
+/// The timer is reset for the next interval when the test for expiration returns true.
+/// The timer is most conveniently referenced by testing the object itself as a boolean expression.
+/// </remarks>
 bool Micronome::Test()
 {
 	uint32_t t = micros();

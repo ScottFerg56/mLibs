@@ -37,12 +37,13 @@ class BlueCtrl : public Applet
 {
 public:
 	/// <summary>Construct with specified server name and hardware control pins.</summary>
-	BlueCtrl(char * name, int8_t cs = 8, int8_t irq = 7, int8_t rst = 4) :
-		ble(cs, irq, rst), Timer(100), ServerName(name) {}
+	BlueCtrl(char prefix, char * name, int8_t cs = 8, int8_t irq = 7, int8_t rst = 4) :
+		Applet(prefix), ble(cs, irq, rst), Timer(100), ServerName(name) {}
 	void		Setup();
 	void		Run();
 	bool		Command(String s);
 	bool		Write(String s);
+	bool		Output(String s);
 
 private:
 	void		error(char* err);

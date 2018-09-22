@@ -168,6 +168,11 @@ bool BlueCtrl::Command(String s)
 	return false;
 }
 
+bool BlueCtrl::Output(String s)
+{
+	return Write(s + ";");
+}
+
 /// <summary>Output a fatal error string and enter an infinite loop wait, requiring a reset of the Arduino.</summary>
 void BlueCtrl::error(char* err)
 {

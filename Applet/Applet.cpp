@@ -81,28 +81,17 @@ bool App::Command(String s)
 	return false;
 }
 
-///	<summary>Process a command string through all of the Applets until one successfully recognizes it.</summary>
-/// <param name="s">The command string to be processed.</param>
-/// <param name="v">A value to be appended to the command string.</param>
-/// <returns>True if an Applet recognized the command, otherwise false.</returns>
-/// <remarks>The command is passed to the Command function of each Applet in the order added until one returns true.</remarks>
-bool App::Command(String s, float v)
+///	<summary>Output string to the outside world using the specified OutputApplet.</summary>
+/// <param name="s">The data string to be output.</param>
+/// <returns>True if the output succeeded.</returns>
+bool App::Output(String s)
 {
-	s = s + String(v);
 //	debug.println("--> ", s);
-	return Command(s);
-}
-
-///	<summary>Process a command string through all of the Applets until one successfully recognizes it.</summary>
-/// <param name="s">The command string to be processed.</param>
-/// <param name="v">A value to be appended to the command string.</param>
-/// <returns>True if an Applet recognized the command, otherwise false.</returns>
-/// <remarks>The command is passed to the Command function of each Applet in the order added until one returns true.</remarks>
-bool App::Command(String s, uint v)
-{
-	s = s + String(v);
-//	debug.println("--> ", s);
-	return Command(s);
+	if (OutputApplet != NULL)
+	{
+		return OutputApplet->Output(s);
+	}
+	return false;
 }
 
 ///	<summary>Find the (first) Applet with the specified Name.</summary>

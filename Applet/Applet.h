@@ -40,9 +40,10 @@ public:
 	void	AddApplet(Applet* applet);
 	void	Run();
 	bool	Command(String s);
-	bool	Command(String s, float v);
-	bool	Command(String s, uint v);
+	bool	Output(String s);
 	Applet*	FindApplet(String name);
+	// An applet used to send data to the outside world
+	Applet*	OutputApplet;
 
 protected:
 	// The list of Applets added
@@ -62,12 +63,20 @@ class Applet
 {
 	friend class App;
 public:
+	Applet(char prefix) : Prefix(prefix)
+	{
+	}
+
 	// Invoked when the Applet is added
 	virtual void	Setup() {}
 	// Invoked from the App Run method
 	virtual void	Run() {}
 	// Process a command string. Return true if recognized.
 	virtual bool	Command(String s) {}
+	// Output a string, if applicable
+	virtual bool	Output(String s) {}
+	// The prefix character for commands
+	char			Prefix;
 	// An arbitrary Name for the Applet
 	String			Name;
 

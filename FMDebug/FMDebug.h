@@ -48,7 +48,7 @@ An Applet that:
 class Debug : public Applet
 {
 public:
-	Debug() : Timer(1000), MetricsTimer(1000) { Buffer = ""; }
+	Debug() : Applet('-'), Timer(1000), MetricsTimer(1000) { Buffer = ""; }
 	void Init(const char* banner, bool wait = false, int debugLED = -1);
 	void Setup();
 	void Run();

@@ -103,8 +103,10 @@ public:
 	/// <param name="prop">The character code for the property to send.</param>
 	void			SendProp(char prop);
 
+	void			TrimFloat(String& s);
+
 	char			Prefix;		// The prefix character for commands
-	String			Name;		// An arbitrary Name for the Applet
+	String			Name = "";	// An arbitrary Name for the Applet
 
 protected:
 	App*			Parent;		// The parent App

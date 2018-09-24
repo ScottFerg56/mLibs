@@ -46,8 +46,10 @@ void FMStepper::Run()
 				// NOTE: a mechanical switch may bounce while moving away!
 				SetCurrentPosition(0);				// (re)calibrate home position
 				SendProp(Prop_Position);			// notify the controller
-				if (!Calibrated)
+				SendProp(Prop_TargetPosition);		// side effect!
+				if (Calibrating)
 				{
+					Calibrating = false;
 					Calibrated = true;
 					SendProp(Prop_Calibrated);		// if we were actively calibrating, notify the controller
 				}
@@ -97,6 +99,7 @@ bool FMStepper::SetProp(char prop, String v)
 	{
 	case Prop_Position:
 		SetCurrentPosition(v.toFloat());
+		SendProp(Prop_TargetPosition);		// side effect!
 		break;
 	case Prop_Acceleration:
 		SetAcceleration(v.toFloat());
@@ -179,7 +182,7 @@ FMStepper::RunStatus FMStepper::Step()
 
 	// don't let the stepper move beyond the set limits
 	long dist = Stepper->distanceToGo();
-	if (dist != 0)
+	if (dist != 0 && !Calibrating)
 	{
 		if (Stepper->currentPosition() >= MaxLimit && dist > 0
 			|| Stepper->currentPosition() <= MinLimit && dist < 0)
@@ -330,6 +333,12 @@ void FMStepper::SetVelocity(float velocity)
 
 void FMStepper::Calibrate()
 {
+	if (LimitPin == -1)
+	{
+		Calibrated = true;		// no limit switch, just fake it!
+		return;
+	}
+	Calibrating = true;
 	SetMaxSpeed(GetSpeedLimit());
 	// set it moving toward the limit switch
 	Stepper->moveTo(-2000000000L);

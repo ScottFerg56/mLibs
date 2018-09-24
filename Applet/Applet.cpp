@@ -25,7 +25,6 @@ void App::AddApplet(Applet* applet)
 	// initialize and Setup the Applet
 	applet->Parent = this;
 	applet->Next = NULL;
-	applet->Name = "";
 	applet->Setup();
 	if (List == NULL)
 	{
@@ -65,7 +64,7 @@ void App::Run()
 /// </remarks>
 bool App::Input(String s)
 {
-//	debug.println("App input: ", s);
+	debug.println("Input: ", s);
 	if (s.length() > 1)
 	{
 		Applet* a = List;
@@ -88,7 +87,7 @@ bool App::Input(String s)
 /// <returns>True if the output succeeded.</returns>
 bool App::Output(String s)
 {
-//	debug.println("--> ", s);
+	debug.println("Output: ", s);
 	if (OutputApplet != NULL)
 	{
 		return OutputApplet->Output(s);
@@ -122,30 +121,36 @@ Applet*	App::FindApplet(String name)
 /// </remarks>
 void Applet::Input(String s)
 {
+
 	switch (s[0])
 	{
 	case '?':
 		// send requested value(s) to controller
 		if (s.length() > 1)
 		{
-			String p = String(Prefix);				// start with Applet Prefix
+		// UNDONE: Strings, ugh!!
+		//	String p = "";				// start with Applet Prefix
 			for (int i = 1; i < s.length(); i++)	// do all requested properties
 			{
+				SendProp(s[i]);
+#if false
 				String v = GetProp(s[i]);			// get the value
 				if (v != NULL)
 				{
+					TrimFloat(v);
 					// format and output the value
 					debug.print(Name + "." + s[i] + " -> "); debug.println(v);
 					if (p.length() > 1)
 						p += ";";
-					p += "=" + s[i] + v;
+					p = p + String(Prefix) + "=" + s[i] + v;
 				}
 				else
 				{
 					debug.print(Name); debug.println(": Invalid property: ", s[i]);
 				}
+#endif
 			}
-			Parent->Output(p);
+		//	Parent->Output(p);
 			return;
 		}
 		break;
@@ -178,12 +183,28 @@ void Applet::SendProp(char prop)
 	String v = GetProp(prop);			// get the value
 	if (v != NULL)
 	{
+		TrimFloat(v);
 		// format and output the value
 		debug.print(Name + "." + prop + " -> "); debug.println(v);
-		Parent->Output(String(Prefix) + "=" + prop + v);
+		String p = String(Prefix) + "=" + prop + v;
+		Parent->Output(p);
 	}
 	else
 	{
 		debug.print(Name); debug.println(": Invalid property: ", prop);
+	}
+}
+
+void Applet::TrimFloat(String& s)
+{
+	if (s.indexOf('.') == -1)
+		return;
+	while (s[s.length() - 1] == '0')
+	{
+		s.remove(s.length() - 1);
+	}
+	if (s[s.length() - 1] == '.')
+	{
+		s.remove(s.length() - 1);
 	}
 }

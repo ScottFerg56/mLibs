@@ -112,12 +112,13 @@ protected:
 	int8_t		LimitPin;				// The pin for monitoring a limit switch. (-1 if not supported)
 	bool		AtLimit = false;		// limit switch is active/closed
 	bool		Calibrated = false;		// limit switch has been reached at least once
+	bool		Calibrating = false;
 
 	float		StepsPerUnit;	// scale factor in steps per unit
 	float		SpeedLimit;		// in units - limit value for MaxSpeed settings
 	long		MaxLimit;		// in steps - maximum stepper position value
 	long		MinLimit;		// in steps - minimum stepper position value
-	bool		IsMoving;		// record of whether we're trying to move the stepper or not
+	bool		IsMoving = false; // record of whether we're trying to move the stepper or not
 	uint32_t	MoveStartTime;	// record of the start time of the last move, in microseconds
 	uint32_t	MoveStopTime;	// record of the stop time of the last move, in microseconds
 	float		Acceleration;	// steps per second per second (not scaled units)

@@ -112,7 +112,7 @@ void Debug::Init(const char* banner, bool wait, int debugLED)
 	Banner = banner; Wait = wait; DebugLED = debugLED;
 }
 
-/// <summary>One-time Setup initialization for the Serial device.</summary>
+/// <summary>One-time Setup initialization for the Applet.</summary>
 /// <remarks>
 /// If 'wait' was specified as true during Init(), this method will not return until
 /// the Serial device makes a connection. This is useful when debugging so that
@@ -133,7 +133,7 @@ void Debug::Setup()
 	}
 }
 
-///	<summary>Run all of the Applets in the App's list.</summary>
+/// <summary>Periodically poll activities for the Applet.</summary>
 void Debug::Run()
 {
 	// polling the Serial device can be quite costly in processor time,
@@ -150,8 +150,8 @@ void Debug::Run()
 				{
 					// hit terminator with non-empty buffer
 					// pass it to the Parent App who will process it through all other Applets
-					// (this may eventually come back to us as our own Command)
-					Parent->Command(Buffer);
+					// (this may eventually come back to us as our own Input)
+					Parent->Input(Buffer);
 					// clear the buffer
 					Buffer = "";
 				}
@@ -191,52 +191,44 @@ void Debug::Run()
 	}
 }
 
-/// <summary>Process a Command string, if recognized.</summary>
-/// <param name="s">The command string to be processed.</param>
-/// <returns>True if recognized.</returns>
+/// <summary>Process a Command string.</summary>
+/// <param name="s">The Command string.</param>
 /// <remarks>
-/// The Command string will be recognized if it starts with '-' regardless of the contents of the remaining string.
-/// Second character:
+/// The first character determines the action:
 ///		'q' - Toggle the Quiet setting, which suppresses debug print output.
 ///		'm' - Toggle the Metrics setting, which outputs periodic loop performance metrics.
 ///		'l' - Dump the Trace log.
 /// </remarks>
-bool Debug::Command(String s)
+void Debug::Command(String s)
 {
-	if (s.length() == 0 || s[0] != '-')
-		return false;
-
-	if (s.length() > 1)
+	switch (s[0])
 	{
-		switch (s[1])
+	case 'q':
+		// Toggle the Quiet setting, which suppresses debug print output
+		Quiet = !Quiet;
+		break;
+	case 'm':
+		// Toggle the Metrics setting, which outputs periodic loop performance metrics
+		Metrics = !Metrics;
+		break;
+	case 'l':
 		{
-		case 'q':
-			// Toggle the Quiet setting, which suppresses debug print output
-			Quiet = !Quiet;
-			break;
-		case 'm':
-			// Toggle the Metrics setting, which outputs periodic loop performance metrics
-			Metrics = !Metrics;
-			break;
-		case 'l':
+			// Dump the Trace log
+			debug.println("<<<<");
+			for (int i = 0; ; ++i)
 			{
-				// Dump the Trace log
-				debug.println("<<<<");
-				for (int i = 0; ; ++i)
-				{
-					String s = debug.PullTrace(i);
-					if (s.length() == 0)
-						break;
-					debug.println(s);
-				}
-				debug.println(">>>>");
+				String s = debug.PullTrace(i);
+				if (s.length() == 0)
+					break;
+				debug.println(s);
 			}
-			break;
-		default:
-			return false;
+			debug.println(">>>>");
 		}
+		break;
+	default:
+		debug.println("invalid debug input: ", s[0]);
+		break;
 	}
-	return true;
 }
 
 /// <summary>Determine if the debug object is Ready for output.</summary>
@@ -292,7 +284,6 @@ void Debug::println(const char* s, const Printable& v) { if (!Ready()) return; S
 /// There appears to be no reliable way to determine if the Serial connection is ever broken.
 /// So this method only tests the underlying connection state if a connection has not yet been made.
 /// When called after a connection has been made, this will quickly return true.
-/// Otherwise, testing the connection may take considerably more processor time.
 /// </remarks>
 bool Debug::CheckConnection()
 {

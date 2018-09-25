@@ -53,7 +53,7 @@ void FMStepper::Run()
 					Calibrated = true;
 					SendProp(Prop_Calibrated);		// if we were actively calibrating, notify the controller
 				}
-				debug.println(Name + " Hit Limit");
+				debug.println(Name, " Hit Limit");
 			//	debug.println("..secs: ", GetLastMoveTime());
 			}
 		}
@@ -67,7 +67,7 @@ void FMStepper::Run()
 		LastStatus = status;
 		if (status == ReachedGoal)
 		{
-			debug.println(Name + " Reached Goal");
+			debug.println(Name, " Reached Goal");
 		//	debug.println("..secs: ", GetLastMoveTime());
 			SendProp(Prop_Position);		// notify the controller
 		}
@@ -93,7 +93,7 @@ void FMStepper::Run()
 /// <summary>Set a property value.</summary>
 /// <param name="prop">The property to set.</param>
 /// <param name="v">The value to set.</param>
-bool FMStepper::SetProp(char prop, String v)
+bool FMStepper::SetProp(char prop, const String& v)
 {
 	switch ((Properties)prop)
 	{

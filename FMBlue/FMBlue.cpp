@@ -16,7 +16,7 @@
 #include "FMBlue.h"
 
 /// <summary>One-time Setup initialization for the Applet.</summary>
-void BlueCtrl::Setup()
+void FMBlue::Setup()
 {
 	// Init BLE
 //	debug.println("BLE Setup");
@@ -54,7 +54,7 @@ void BlueCtrl::Setup()
 /// Periodically poll the Bluetooth device for incoming characters terminated by ';' or CR or LF, building an
 /// Input string to be passed to the Parent App Input method for processing by registered Applets.
 /// </remarks>
-void BlueCtrl::Run()
+void FMBlue::Run()
 {
 	// polling the Bluetooth device can be quite costly in processor time,
 	// so we only check periodically using a Metronome Timer
@@ -83,9 +83,8 @@ void BlueCtrl::Run()
 		// check for new BLE data
 		while (ble.available())
 		{
-			char b = ble.read();
-		//	debug.println("BLE char: ", (int)b, HEX);
-			if (b == ';' || b == '\n' || b == '\r')
+			char c = ble.read();
+			if (c == ';' || c == '\n' || c == '\r')
 			{
 				if (Buffer.length() > 0)
 				{
@@ -94,13 +93,15 @@ void BlueCtrl::Run()
 					// (this may eventually come back to us as our own Input)
 					Parent->Input(Buffer);
 					// clear the buffer
+					// Note: this does not reduce the reserve capacity of the String in the current implementation
 					Buffer = "";
 				}
 			}
 			else
 			{
 				// buffer the character and keep looking for terminator
-				Buffer += b;
+				// Note: the String capacity will only grow as needed above our initial reserve amount (so maybe never)
+				Buffer.concat(c);
 			}
 		}
 	}
@@ -109,7 +110,7 @@ void BlueCtrl::Run()
 /// <summary>Output the string through the Bluetooth device.</summary>
 /// <param name="s">The string to be output.</param>
 /// <returns>True if connected (and the string write was attempted).</returns>
-bool BlueCtrl::Write(String s)
+bool FMBlue::Write(const String& s)
 {
 	// avoid if not Connected
 	if (!Connected)
@@ -127,7 +128,7 @@ bool BlueCtrl::Write(String s)
 ///		'd' - Force Bluetooth disconnect (e.g. for testing purposes).
 ///		'r' - Perform a factory reset of the Bluetooth device. (Will surely require a subsequent reset of the Arduino.)
 /// </remarks>
-void BlueCtrl::Command(String s)
+void FMBlue::Command(const String& s)
 {
 	switch (s[0])
 	{
@@ -157,7 +158,7 @@ void BlueCtrl::Command(String s)
 /// <summary>Output a terminated packet string through the Bluetooth device.</summary>
 /// <param name="s">The string to be output.</param>
 /// <returns>True if connected (and the string write was attempted).</returns>
-bool BlueCtrl::Output(String s)
+bool FMBlue::Output(const String& s)
 {
 	// add a packet-terminating ';'
 	return Write(s + ";");

@@ -36,9 +36,9 @@ public:
 	App() : List(NULL) { }
 	void	AddApplet(Applet* applet);
 	void	Run();
-	bool	Input(String s);
-	bool	Output(String s);
-	Applet*	FindApplet(String name);
+	bool	Input(const String& s);
+	bool	Output(const String& s);
+	Applet*	FindApplet(const char* name);
 	// An applet used to send data to the outside world
 	Applet*	OutputApplet;
 
@@ -74,21 +74,21 @@ public:
 	/// Most Applets will support the Command method or the Get/SetProp methods or both.
 	/// The Input method can be defined to override that functionality for input processing.
 	/// </remarks>
-	virtual void	Input(String s);
+	virtual void	Input(const String& s);
 
 	/// <summary>Output a string, if applicable.</summary>
 	/// <remarks>
 	/// Applets that provide outgoing communications can implement this Output method
 	/// and be set as the OutputApplet on the master App object.
 	/// </remarks>
-	virtual bool	Output(String s) { }
+	virtual bool	Output(const String& s) { }
 
 	/// <summary>Process a command string.</summary>
 	/// <remarks>
 	/// Applets that want to respond to incoming communications, other than property exchange,
 	/// can implement this method.
 	/// </remarks>
-	virtual void	Command(String s) { }
+	virtual void	Command(const String& s) { }
 
 	/// <summary>Get a property value as a string.</summary>
 	/// <param name="prop">The property to get.</param>
@@ -97,7 +97,7 @@ public:
 	/// <summary>Set a property value.</summary>
 	/// <param name="prop">The property to set.</param>
 	/// <param name="v">The value to set.</param>
-	virtual bool	SetProp(char prop, String v) { return false; }
+	virtual bool	SetProp(char prop, const String& v) { return false; }
 
 	/// <summary>Send a property value to Output.</summary>
 	/// <param name="prop">The character code for the property to send.</param>
@@ -106,7 +106,7 @@ public:
 	void			TrimFloat(String& s);
 
 	char			Prefix;		// The prefix character for commands
-	String			Name = "";	// An arbitrary Name for the Applet
+	char*			Name;		// An arbitrary Name for the Applet
 
 protected:
 	App*			Parent;		// The parent App

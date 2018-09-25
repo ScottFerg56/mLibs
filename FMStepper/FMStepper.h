@@ -55,7 +55,7 @@ public:
 	void		Setup();
 	void		Run();
 	String		GetProp(char prop);
-	bool		SetProp(char prop, String v);
+	bool		SetProp(char prop, const String& v);
 
 	/// <summary>Status of stepper movement.</summary>
 	enum RunStatus

@@ -18,7 +18,10 @@
 #include "FMDebug.h"
 #include <FMTime.h>
 
-// The SINGLE instance of the Debug Applet to be used throughout the App!
+// The SINGLE instance of the FMDebug Applet for global use
+FMDebug	fmDebug;
+
+// The SINGLE instance of Debug for global use
 Debug	debug;
 
 /// <summary>A time-stamped entry for logging event messages.</summary>
@@ -41,7 +44,7 @@ TRACE Traces[TraceCount];	// a circular buffer to hold TRACE log entries
 /// <remarks>
 /// For internal use only.
 /// </remarks>
-String Debug::TraceString(uint inx)
+String FMDebug::TraceString(uint inx)
 {
 	// format the timestamp and base message
 	String s = "[" + FMDateTime(Traces[inx].ms).ToString() + "] " + Traces[inx].msg;
@@ -54,7 +57,7 @@ String Debug::TraceString(uint inx)
 /// <summary>Output a TRACE message and log it.</summary>
 /// <param name="msg">A constant string message.</param>
 /// <param name="more">An additional optional string parameter which must be copied to dynamically allocated memory.</param>
-void Debug::Trace(const char* msg, const char* more)
+void FMDebug::Trace(const char* msg, const char* more)
 {
 	// free up any alloc'd memory from a previous use of this TRACE entry in the circular buffer
 	if (Traces[TraceHead].more)
@@ -95,7 +98,7 @@ void Debug::Trace(const char* msg, const char* more)
 /// The log entry index is zero for the oldest entry in the log and limited to TraceCount,
 /// the maximum number of entries in the log.
 /// </remarks>
-String Debug::PullTrace(uint i)
+String FMDebug::PullTrace(uint i)
 {
 	i = (TraceTail + i) % TraceCount;
 	if (i == TraceHead)
@@ -107,7 +110,7 @@ String Debug::PullTrace(uint i)
 /// <param name="banner">The banner to be displayed on the serial output once connected.</param>
 /// <param name="wait">True if Setup should wait for Serial connection before proceeding.</param>
 /// <param name="debugLED">The LED pin to be toggled periodically as a heartbeat sign of life. (-1 if none.)</param>
-void Debug::Init(const char* banner, bool wait, int debugLED)
+void FMDebug::Init(const char* banner, bool wait, int debugLED)
 {
 	Banner = banner; Wait = wait; DebugLED = debugLED;
 }
@@ -119,7 +122,7 @@ void Debug::Init(const char* banner, bool wait, int debugLED)
 /// other Applets can output important status info during their Setup.
 /// For that reason, the 'debug' Applet should be the first added to the App.
 /// </remarks>
-void Debug::Setup()
+void FMDebug::Setup()
 {
 	if (DebugLED != -1)
 	{
@@ -134,7 +137,7 @@ void Debug::Setup()
 }
 
 /// <summary>Periodically poll activities for the Applet.</summary>
-void Debug::Run()
+void FMDebug::Run()
 {
 	// polling the Serial device can be quite costly in processor time,
 	// so we only check periodically using a Metronome timer
@@ -143,22 +146,28 @@ void Debug::Run()
 		// nothing to do if we're not connected
 		if (CheckConnection())
 		{
+			// check for new Serial data
 			while (Serial.available())
 			{
 				char c = Serial.read();
 				if (c == ';' || c == '\n' || c == '\r')
 				{
-					// hit terminator with non-empty buffer
-					// pass it to the Parent App who will process it through all other Applets
-					// (this may eventually come back to us as our own Input)
-					Parent->Input(Buffer);
-					// clear the buffer
-					Buffer = "";
+					if (Buffer.length() > 0)
+					{
+						// hit terminator with non-empty buffer
+						// pass it to the Parent App who will vector it to the appropriate Applet
+						// (this may eventually come back to us as our own Input)
+						Parent->Input(Buffer);
+						// clear the buffer
+						// Note: this does not reduce the reserve capacity of the String in the current implementation
+						Buffer = "";
+					}
 				}
 				else
 				{
 					// buffer the character and keep looking for terminator
-					Buffer += c;
+					// Note: the String capacity will only grow as needed above our initial reserve amount (so maybe never)
+					Buffer.concat(c);
 				}
 			}
 		}
@@ -199,7 +208,7 @@ void Debug::Run()
 ///		'm' - Toggle the Metrics setting, which outputs periodic loop performance metrics.
 ///		'l' - Dump the Trace log.
 /// </remarks>
-void Debug::Command(String s)
+void FMDebug::Command(const String& s)
 {
 	switch (s[0])
 	{
@@ -217,7 +226,7 @@ void Debug::Command(String s)
 			debug.println("<<<<");
 			for (int i = 0; ; ++i)
 			{
-				String s = debug.PullTrace(i);
+				String s = PullTrace(i);
 				if (s.length() == 0)
 					break;
 				debug.println(s);
@@ -233,50 +242,10 @@ void Debug::Command(String s)
 
 /// <summary>Determine if the debug object is Ready for output.</summary>
 /// <returns>True if the Serial device is connected and output is not suppressed.</returns>
-bool Debug::Ready()
+bool FMDebug::Ready()
 {
 	return Connected && !Quiet;
 }
-
-// implementations follow for a variety of print/ln functions for debug output.
-
-#define PRINTONE { if (!Ready()) return; Serial.print(v); }
-#define PRINTTWO { if (!Ready()) return; Serial.print(s); Serial.print(v); }
-#define PRINTTHREE { if (!Ready()) return; Serial.print(s); Serial.print(v, p); }
-
-void Debug::print(String v) PRINTONE
-void Debug::print(char v) PRINTONE
-void Debug::print(const char* v) PRINTONE
-
-void Debug::print(const char* s, const String &v) PRINTTWO
-void Debug::print(const char* s, const char v[]) PRINTTWO
-void Debug::print(const char* s, char v) PRINTTWO
-void Debug::print(const char* s, unsigned char v, int p) PRINTTHREE
-void Debug::print(const char* s, int v, int p) PRINTTHREE
-void Debug::print(const char* s, unsigned int v, int p) PRINTTHREE
-void Debug::print(const char* s, long v, int p) PRINTTHREE
-void Debug::print(const char* s, unsigned long v, int p) PRINTTHREE
-void Debug::print(const char* s, double v, int p) PRINTTHREE
-void Debug::print(const char* s, const Printable& v) { if (!Ready()) return; Serial.print(s); v.printTo(Serial); }
-
-#define PRINTLNONE { if (!Ready()) return; Serial.println(v); }
-#define PRINTLNTWO { if (!Ready()) return; Serial.print(s); Serial.println(v); }
-#define PRINTLNTHREE { if (!Ready()) return; Serial.print(s); Serial.println(v, p); }
-
-void Debug::println(String v) PRINTLNONE
-void Debug::println(char v) PRINTLNONE
-void Debug::println(const char* v) PRINTLNONE
-
-void Debug::println(const char* s, const String &v) PRINTLNTWO
-void Debug::println(const char* s, const char v[]) PRINTLNTWO
-void Debug::println(const char* s, char v) PRINTLNTWO
-void Debug::println(const char* s, unsigned char v, int p) PRINTLNTHREE
-void Debug::println(const char* s, int v, int p) PRINTLNTHREE
-void Debug::println(const char* s, unsigned int v, int p) PRINTLNTHREE
-void Debug::println(const char* s, long v, int p) PRINTLNTHREE
-void Debug::println(const char* s, unsigned long v, int p) PRINTLNTHREE
-void Debug::println(const char* s, double v, int p) PRINTLNTHREE
-void Debug::println(const char* s, const Printable& v) { if (!Ready()) return; Serial.print(s); v.printTo(Serial); Serial.println(); }
 
 /// <summary>Check for a Serial connection.</summary>
 /// <returns>True if the Serial device is (or has been) connected.</returns>
@@ -285,16 +254,45 @@ void Debug::println(const char* s, const Printable& v) { if (!Ready()) return; S
 /// So this method only tests the underlying connection state if a connection has not yet been made.
 /// When called after a connection has been made, this will quickly return true.
 /// </remarks>
-bool Debug::CheckConnection()
+bool FMDebug::CheckConnection()
 {
 	if (!Connected && Serial)
 	{
 		Connected = true;
 		if (Connected)
 		{
-			Serial.begin(9600);		// ignored in USB serial comm??
-			println(Banner);		// print our banner!
+			Serial.begin(9600);			// ignored in USB serial comm??
+			debug.println(Banner);		// print our banner!
 		}
 	}
 	return Connected;
 }
+
+size_t FMDebug::write(uint8_t c) { if (Ready()) { Serial.write(c); } }
+size_t FMDebug::write(const uint8_t *buffer, size_t size) { if (Ready()) { Serial.write(buffer, size); } }
+
+// implementations follow for a variety of print/ln functions for debug output.
+
+void Debug::print(const char s[], const __FlashStringHelper *v) { print(s); print(v); }
+void Debug::print(const char s[], const String& v) { print(s); print(v); }
+void Debug::print(const char s[], const char v[]) { print(s); print(v); }
+void Debug::print(const char s[], char v) { print(s); print(v); }
+void Debug::print(const char s[], unsigned char v, int p) { print(s); print(v, p); }
+void Debug::print(const char s[], int v, int p) { print(s); print(v, p); }
+void Debug::print(const char s[], unsigned int v, int p) { print(s); print(v, p); }
+void Debug::print(const char s[], long v, int p) { print(s); print(v, p); }
+void Debug::print(const char s[], unsigned long v, int p) { print(s); print(v, p); }
+void Debug::print(const char s[], double v, int p) { print(s); print(v, p); }
+void Debug::print(const char s[], const Printable& v) { print(s); v.printTo(*this); }
+
+void Debug::println(const char s[], const __FlashStringHelper *v) { print(s); println(v); }
+void Debug::println(const char s[], const String& v) { print(s); println(v); }
+void Debug::println(const char s[], const char v[]) { print(s); println(v); }
+void Debug::println(const char s[], char v) { print(s); println(v); }
+void Debug::println(const char s[], unsigned char v, int p) { print(s); println(v, p); }
+void Debug::println(const char s[], int v, int p) { print(s); println(v, p); }
+void Debug::println(const char s[], unsigned int v, int p) { print(s); println(v, p); }
+void Debug::println(const char s[], long v, int p) { print(s); println(v, p); }
+void Debug::println(const char s[], unsigned long v, int p) { print(s); println(v, p); }
+void Debug::println(const char s[], double v, int p) { print(s); println(v, p); }
+void Debug::println(const char s[], const Printable& v) { print(s); v.printTo(*this); println(); }

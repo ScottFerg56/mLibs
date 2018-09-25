@@ -62,7 +62,7 @@ void App::Run()
 /// <remarks>
 /// The string is passed to the Input function of the Applet whose Prefix matches the first character of the string.
 /// </remarks>
-bool App::Input(String s)
+bool App::Input(const String& s)
 {
 	debug.println("Input: ", s);
 	if (s.length() > 1)
@@ -85,7 +85,7 @@ bool App::Input(String s)
 ///	<summary>Output string to the outside world using the specified OutputApplet.</summary>
 /// <param name="s">The data string to be output.</param>
 /// <returns>True if the output succeeded.</returns>
-bool App::Output(String s)
+bool App::Output(const String& s)
 {
 	debug.println("Output: ", s);
 	if (OutputApplet != NULL)
@@ -98,12 +98,12 @@ bool App::Output(String s)
 ///	<summary>Find the (first) Applet with the specified Name.</summary>
 /// <param name="name">The Name to search for.</param>
 /// <returns>The Applet found, or NULL if none was found with the specified Name.</returns>
-Applet*	App::FindApplet(String name)
+Applet*	App::FindApplet(const char* name)
 {
 	Applet* a = List;
 	while (a != NULL)
 	{
-		if (a->Name == name)
+		if (strcmp(a->Name, name) == 0)
 			return a;
 		a = a->Next;
 	}
@@ -119,7 +119,7 @@ Applet*	App::FindApplet(String name)
 ///		'=' - the second character indicates a property and the remainder of tha string a value assign it
 ///		For any other character, the string is passed on to the Command method
 /// </remarks>
-void Applet::Input(String s)
+void Applet::Input(const String& s)
 {
 
 	switch (s[0])
@@ -128,29 +128,10 @@ void Applet::Input(String s)
 		// send requested value(s) to controller
 		if (s.length() > 1)
 		{
-		// UNDONE: Strings, ugh!!
-		//	String p = "";				// start with Applet Prefix
 			for (int i = 1; i < s.length(); i++)	// do all requested properties
 			{
 				SendProp(s[i]);
-#if false
-				String v = GetProp(s[i]);			// get the value
-				if (v != NULL)
-				{
-					TrimFloat(v);
-					// format and output the value
-					debug.print(Name + "." + s[i] + " -> "); debug.println(v);
-					if (p.length() > 1)
-						p += ";";
-					p = p + String(Prefix) + "=" + s[i] + v;
-				}
-				else
-				{
-					debug.print(Name); debug.println(": Invalid property: ", s[i]);
-				}
-#endif
 			}
-		//	Parent->Output(p);
 			return;
 		}
 		break;
@@ -161,7 +142,7 @@ void Applet::Input(String s)
 			String v = s.substring(2);
 			if (SetProp(s[1], v))
 			{
-				debug.print(Name + "." + s[1] + " <- "); debug.println(v);
+				debug.print(Name); debug.println(".", String(s[1]) + " <- " + v);
 			}
 			else
 			{
@@ -184,10 +165,9 @@ void Applet::SendProp(char prop)
 	if (v != NULL)
 	{
 		TrimFloat(v);
+		debug.print(Name); debug.println(".", String(prop) + " -> " + v);
 		// format and output the value
-		debug.print(Name + "." + prop + " -> "); debug.println(v);
-		String p = String(Prefix) + "=" + prop + v;
-		Parent->Output(p);
+		Parent->Output(String(Prefix) + "=" + prop + v);
 	}
 	else
 	{

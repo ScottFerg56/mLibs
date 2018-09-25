@@ -40,7 +40,7 @@ public:
 
 	void		Setup();
 	void		Run();
-	bool		SetProp(char prop, String v);
+	bool		SetProp(char prop, const String& v);
 	String		GetProp(char prop);
 
 	/// <summary>Properties exposed to the communications interface.</summary>

@@ -111,7 +111,7 @@ void FMIvalometer::Run()
 /// <summary>Set a property value.</summary>
 /// <param name="prop">The property to set.</param>
 /// <param name="v">The value to set.</param>
-bool FMIvalometer::SetProp(char prop, String v)
+bool FMIvalometer::SetProp(char prop, const String& v)
 {
 	switch (prop)
 	{

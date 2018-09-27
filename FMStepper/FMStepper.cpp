@@ -129,6 +129,12 @@ bool FMStepper::SetProp(char prop, const String& v)
 	case Prop_TargetPosition:
 		SetTargetPosition(v.toFloat());
 		break;
+	case Prop_MaxLimit:
+		MaxLimit = v.toFloat();
+		break;
+	case Prop_MinLimit:
+		MinLimit = v.toFloat();
+		break;
 	case Prop_MicrosPerStep:
 		SetMicrosPerStep(v.toInt());
 		break;
@@ -158,6 +164,10 @@ String FMStepper::GetProp(char prop)
 		return String(Calibrated ? 1 : 0);
 	case Prop_TargetPosition:
 		return String(GetTargetPosition());
+	case Prop_MaxLimit:
+		return String(MaxLimit);
+	case Prop_MinLimit:
+		return String(MinLimit);
 	case Prop_MicrosPerStep:
 		return String(GetMicrosPerStep());
 	case Prop_Velocity:	// write-only
@@ -185,8 +195,9 @@ FMStepper::RunStatus FMStepper::Step()
 	long dist = Stepper->distanceToGo();
 	if (dist != 0 && !Calibrating)
 	{
-		if (Stepper->currentPosition() >= MaxLimit && dist > 0
-			|| Stepper->currentPosition() <= MinLimit && dist < 0)
+		float pos = GetCurrentPosition();
+		if (pos >= MaxLimit && dist > 0
+			|| pos <= MinLimit && dist < 0)
 		{
 			return ReachedGoal;
 		}
@@ -228,13 +239,12 @@ float FMStepper::GetTargetPosition()
 void FMStepper::SetTargetPosition(float position)
 {
 	// scale and limit the new target
-	long goal = (long)(position * StepsPerUnit);
-	if (goal > MaxLimit)
-		goal = MaxLimit;
-	else if (goal < MinLimit)
-		goal = MinLimit;
+	if (position > MaxLimit)
+		position = MaxLimit;
+	else if (position < MinLimit)
+		position = MinLimit;
 	// set it moving
-	Stepper->moveTo(goal);
+	Stepper->moveTo((long)roundf(position * StepsPerUnit));
 	IsMoving = true;
 	MoveStartTime = millis();
 }
@@ -254,7 +264,7 @@ float FMStepper::GetCurrentPosition()
 /// </remarks>
 void FMStepper::SetCurrentPosition(float position)
 {
-	Stepper->setCurrentPosition((long)(position * StepsPerUnit));
+	Stepper->setCurrentPosition((long)roundf(position * StepsPerUnit));
 	// this will stop a current movement in progress
 	IsMoving = false;
 	MoveStopTime = millis();
@@ -329,7 +339,7 @@ void FMStepper::SetVelocity(float velocity)
 	// set the non-directional speed
 	SetMaxSpeed(abs(velocity));
 	// set a target at the appropriate limit to establish direction and get moving
-	SetTargetPosition(velocity > 0 ? MaxLimit * StepsPerUnit : -MaxLimit * StepsPerUnit);
+	SetTargetPosition(velocity > 0 ? MaxLimit : MinLimit);
 }
 
 void FMStepper::Calibrate()
@@ -352,8 +362,10 @@ void FMStepper::Calibrate()
 /// <param name="max">The maximum positional value for movement, in logical units.</param>
 void FMStepper::SetLimits(float min, float max)
 {
-	MinLimit = min * StepsPerUnit;
-	MaxLimit = max * StepsPerUnit;
+	MinLimit = min;
+	MaxLimit = max;
+	SendProp(Prop_MinLimit);	// notify the controller of change
+	SendProp(Prop_MaxLimit);
 }
 
 /// <summary>Get the scale factor in steps per unit.</summary>

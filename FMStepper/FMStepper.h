@@ -49,8 +49,8 @@ public:
 		StepsPerUnit = stepsPerUnit;
 		LimitPin = limitPin;
 		SpeedLimit = 0;
-		MaxLimit = 2000000000L;	// arbitrarily large values for longs
-		MinLimit = -2000000000L;
+		MaxLimit = MAXFLOAT;		// initialize to no limits
+		MinLimit = -MAXFLOAT;
 	}
 
 	void		Setup();
@@ -78,7 +78,9 @@ public:
 		Prop_Velocity = 'v',
 		Prop_Calibrated = 'c',
 		Prop_TargetPosition = 't',
-		Prop_MicrosPerStep = 'x',
+		Prop_MaxLimit = 'x',
+		Prop_MinLimit = 'n',
+		Prop_MicrosPerStep = 'u',
 	};
 
 	RunStatus	Step();
@@ -117,8 +119,8 @@ protected:
 
 	float		StepsPerUnit;	// scale factor in steps per unit
 	float		SpeedLimit;		// in units - limit value for MaxSpeed settings
-	long		MaxLimit;		// in steps - maximum stepper position value
-	long		MinLimit;		// in steps - minimum stepper position value
+	float		MaxLimit;		// in units - maximum stepper position value
+	float		MinLimit;		// in units - minimum stepper position value
 	bool		IsMoving = false; // record of whether we're trying to move the stepper or not
 	uint32_t	MoveStartTime;	// record of the start time of the last move, in microseconds
 	uint32_t	MoveStopTime;	// record of the stop time of the last move, in microseconds

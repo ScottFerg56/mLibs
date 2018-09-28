@@ -40,7 +40,7 @@ public:
 	bool	Output(const String& s);
 	Applet*	FindApplet(const char* name);
 	// An applet used to send data to the outside world
-	Applet*	OutputApplet;
+	Applet*	OutputApplet = NULL;
 
 protected:
 	// The list of Applets added

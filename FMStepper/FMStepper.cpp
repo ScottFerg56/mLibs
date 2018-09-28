@@ -364,8 +364,8 @@ void FMStepper::SetLimits(float min, float max)
 {
 	MinLimit = min;
 	MaxLimit = max;
-	SendProp(Prop_MinLimit);	// notify the controller of change
-	SendProp(Prop_MaxLimit);
+//	SendProp(Prop_MinLimit);	// notify the controller of change
+//	SendProp(Prop_MaxLimit);
 }
 
 /// <summary>Get the scale factor in steps per unit.</summary>

@@ -45,7 +45,7 @@ void FMStepper::Run()
 			{
 				// hit limit while moving toward it
 				// NOTE: a mechanical switch may bounce while moving away!
-				SetCurrentPosition(0);				// (re)calibrate home position
+				SetCurrentPosition(MinLimit);		// (re)calibrate home position
 				SendProp(Prop_Position);			// notify the controller
 				SendProp(Prop_TargetPosition);		// side effect!
 				if (Calibrating)
@@ -54,7 +54,7 @@ void FMStepper::Run()
 					Calibrated = true;
 					SendProp(Prop_Calibrated);		// if we were actively calibrating, notify the controller
 				}
-				debug.println(Name, " Hit Limit");
+			//	debug.println(Name, " Hit Limit");
 			//	debug.println("..secs: ", GetLastMoveTime());
 			}
 		}
@@ -68,7 +68,7 @@ void FMStepper::Run()
 		LastStatus = status;
 		if (status == ReachedGoal)
 		{
-			debug.println(Name, " Reached Goal");
+		//	debug.println(Name, " Reached Goal");
 		//	debug.println("..secs: ", GetLastMoveTime());
 			SendProp(Prop_Position);		// notify the controller
 		}
@@ -121,9 +121,8 @@ bool FMStepper::SetProp(char prop, const String& v)
 	case Prop_Calibrated:
 		if (LimitPin != -1 && v[0] != '1' && v[0] != 't')
 		{
-			Calibrated = false;
-			SendProp(Prop_Calibrated);	// notify the controller of change
 			Calibrate();
+			SendProp(Prop_Calibrated);	// notify the controller of change
 		}
 		break;
 	case Prop_TargetPosition:
@@ -344,11 +343,13 @@ void FMStepper::SetVelocity(float velocity)
 
 void FMStepper::Calibrate()
 {
-	if (LimitPin == -1)
+	if (LimitPin == -1 || AtLimit)
 	{
 		Calibrated = true;		// no limit switch, just fake it!
+		Calibrating = false;
 		return;
 	}
+	Calibrated = false;
 	Calibrating = true;
 	SetMaxSpeed(GetSpeedLimit());
 	// set it moving toward the limit switch

@@ -64,7 +64,7 @@ void App::Run()
 /// </remarks>
 bool App::Input(const String& s)
 {
-	debug.println("Input: ", s);
+//	debug.println("Input: ", s);
 	if (s.length() > 1)
 	{
 		Applet* a = List;
@@ -87,7 +87,7 @@ bool App::Input(const String& s)
 /// <returns>True if the output succeeded.</returns>
 bool App::Output(const String& s)
 {
-	debug.println("Output: ", s);
+//	debug.println("Output: ", s);
 	if (OutputApplet != NULL)
 	{
 		return OutputApplet->Output(s);
@@ -142,7 +142,7 @@ void Applet::Input(const String& s)
 			String v = s.substring(2);
 			if (SetProp(s[1], v))
 			{
-				debug.print(Name); debug.println(".", String(s[1]) + " <- " + v);
+			//	debug.print(Name); debug.println(".", String(s[1]) + " <- " + v);
 			}
 			else
 			{
@@ -165,7 +165,7 @@ void Applet::SendProp(char prop)
 	if (v != NULL)
 	{
 		TrimFloat(v);
-		debug.print(Name); debug.println(".", String(prop) + " -> " + v);
+	//	debug.print(Name); debug.println(".", String(prop) + " -> " + v);
 		// format and output the value
 		Parent->Output(String(Prefix) + "=" + prop + v);
 	}

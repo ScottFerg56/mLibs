@@ -1,14 +1,14 @@
 /*
 
-@@@@@@@ @@   @@   @@@@                    @@@                              @
- @@  @@ @@@ @@@    @@                      @@                             @@
- @@   @ @@@@@@@    @@                      @@                             @@
- @@ @   @@@@@@@    @@    @@  @@  @@@@      @@    @@@@@  @@@ @@   @@@@@  @@@@@@   @@@@@  @@ @@@
- @@@@   @@ @ @@    @@    @@  @@     @@     @@   @@   @@ @@@@@@@ @@   @@   @@    @@   @@  @@  @@
- @@ @   @@   @@    @@    @@  @@  @@@@@     @@   @@   @@ @@ @ @@ @@@@@@@   @@    @@@@@@@  @@  @@
- @@     @@   @@    @@    @@  @@ @@  @@     @@   @@   @@ @@ @ @@ @@        @@    @@       @@
- @@     @@   @@    @@     @@@@  @@  @@     @@   @@   @@ @@ @ @@ @@   @@   @@ @@ @@   @@  @@
-@@@@    @@   @@   @@@@     @@    @@@ @@   @@@@   @@@@@  @@   @@  @@@@@     @@@   @@@@@  @@@@
+OOOOOOO OO   OO   OOOO                    OOO                              O
+ OO  OO OOO OOO    OO                      OO                             OO
+ OO   O OOOOOOO    OO                      OO                             OO
+ OO O   OOOOOOO    OO    OO  OO  OOOO      OO    OOOOO  OOO OO   OOOOO  OOOOOO   OOOOO  OO OOO
+ OOOO   OO O OO    OO    OO  OO     OO     OO   OO   OO OOOOOOO OO   OO   OO    OO   OO  OO  OO
+ OO O   OO   OO    OO    OO  OO  OOOOO     OO   OO   OO OO O OO OOOOOOO   OO    OOOOOOO  OO  OO
+ OO     OO   OO    OO    OO  OO OO  OO     OO   OO   OO OO O OO OO        OO    OO       OO
+ OO     OO   OO    OO     OOOO  OO  OO     OO   OO   OO OO O OO OO   OO   OO OO OO   OO  OO
+OOOO    OO   OO   OOOO     OO    OOO OO   OOOO   OOOOO  OO   OO  OOOOO     OOO   OOOOO  OOOO
 
 	(c) 2018 Scott Ferguson
 	This code is licensed under MIT license (see LICENSE file for details)

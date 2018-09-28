@@ -1,14 +1,14 @@
 /*
 
-@@@@@@@ @@   @@ @@@@@@    @@@
- @@  @@ @@@ @@@  @@  @@    @@
- @@   @ @@@@@@@  @@  @@    @@
- @@ @   @@@@@@@  @@  @@    @@   @@  @@   @@@@@
- @@@@   @@ @ @@  @@@@@     @@   @@  @@  @@   @@
- @@ @   @@   @@  @@  @@    @@   @@  @@  @@@@@@@
- @@     @@   @@  @@  @@    @@   @@  @@  @@
- @@     @@   @@  @@  @@    @@   @@  @@  @@   @@
-@@@@    @@   @@ @@@@@@    @@@@   @@@ @@  @@@@@
+OOOOOOO OO   OO OOOOOO    OOO
+ OO  OO OOO OOO  OO  OO    OO
+ OO   O OOOOOOO  OO  OO    OO
+ OO O   OOOOOOO  OO  OO    OO   OO  OO   OOOOO
+ OOOO   OO O OO  OOOOO     OO   OO  OO  OO   OO
+ OO O   OO   OO  OO  OO    OO   OO  OO  OOOOOOO
+ OO     OO   OO  OO  OO    OO   OO  OO  OO
+ OO     OO   OO  OO  OO    OO   OO  OO  OO   OO
+OOOO    OO   OO OOOOOO    OOOO   OOO OO  OOOOO
 
 	(c) 2018 Scott Ferguson
 	This code is licensed under MIT license (see LICENSE file for details)

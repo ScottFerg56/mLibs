@@ -21,6 +21,5 @@ Place the mLibs projects in sibling subdirectories with your main projects in yo
 These projects have dependencies on several libraries, including the Arduino libraries of course:
 * FMBlue
 	* [**Adafruit nRF51 BLE Library**](https://learn.adafruit.com/adafruit-feather-32u4-bluefruit-le/installing-ble-library)
-	* **Feather M0 Bluefruit LE** - Check with [**Adafruit**](https://learn.adafruit.com/adafruit-feather-m0-bluefruit-le?view=all) for installing support for the board.
 * FMStepper
 	* [**AccelStepper library**](http://www.airspayce.com/mikem/arduino/AccelStepper/).
